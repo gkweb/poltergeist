@@ -8,6 +8,7 @@
     "build": "pnpm --filter @poltergeist-ai/cli run build",
     "typecheck": "pnpm --filter @poltergeist-ai/cli run typecheck",
     "dev": "pnpm --filter @poltergeist-ai/cli run dev",
+    "test": "pnpm --filter @poltergeist-ai/cli run test",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
