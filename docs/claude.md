@@ -9,12 +9,15 @@ Poltergeist ships as a [Claude Code plugin](https://docs.anthropic.com/en/docs/c
 ## Install the plugin
 
 ```bash
-claude plugin add github:gkweb/poltergeist
+claude plugin marketplace add github:gkweb/poltergeist
+claude plugin install poltergeist
 ```
 
 This registers:
 - **The `poltergeist` skill** — Claude knows how to load ghost files and produce reviews in a contributor's voice
 - **The `/extract` command** — interactive ghost builder that guides you through data source selection and extraction
+
+> **Note:** We plan to submit poltergeist to the official Claude Code plugin marketplace once it's stable. After that, installation will be a single `claude plugin install poltergeist` command.
 
 ## Happy path: end to end
 

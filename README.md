@@ -45,10 +45,13 @@ The ghost file (`ghosts/<slug>.md`) lives in your repo alongside your code. It's
 Add poltergeist as a Claude Code plugin from GitHub:
 
 ```bash
-claude plugin add github:gkweb/poltergeist
+claude plugin marketplace add github:gkweb/poltergeist
+claude plugin install poltergeist
 ```
 
 This gives you the `/extract` command and the review skill.
+
+> **Note:** We plan to submit poltergeist to the official Claude Code plugin marketplace once it's stable. After that, installation will be a single `claude plugin install poltergeist` command.
 
 ### 2. Build a ghost
 
