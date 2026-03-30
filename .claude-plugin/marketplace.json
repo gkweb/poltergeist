@@ -1,10 +1,16 @@
 {
   "name": "poltergeist",
-  "description": "Code reviews from contributors who aren't in the room",
+  "owner": {
+    "name": "gkweb"
+  },
+  "metadata": {
+    "description": "Code reviews from contributors who aren't in the room"
+  },
   "plugins": [
     {
       "name": "poltergeist",
-      "path": "packages/plugin"
+      "source": "./packages/plugin",
+      "description": "Code reviews from contributors who aren't in the room"
     }
   ]
 }

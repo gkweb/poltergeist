@@ -45,7 +45,7 @@ The ghost file (`ghosts/<slug>.md`) lives in your repo alongside your code. It's
 Add poltergeist as a Claude Code plugin from GitHub:
 
 ```bash
-claude plugin marketplace add github:gkweb/poltergeist
+claude plugin marketplace add gkweb/poltergeist
 claude plugin install poltergeist
 ```
 
