@@ -23,12 +23,14 @@
     "build": "tsup",
     "dev": "tsx src/cli.ts",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "pnpm run build",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "tsup": "^8.0.0",
     "tsx": "^4.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.9"
   }
 }
