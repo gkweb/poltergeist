@@ -34,7 +34,7 @@ Poltergeist is tool-agnostic by design. Ghost files are plain markdown that any 
 
 ## Bug reports
 
-Use the [GitHub issue tracker](https://github.com/poltergeist-ai/poltergeist/issues). Include:
+Use the [GitHub issue tracker](https://github.com/gkweb/poltergeist/issues). Include:
 
 - What you ran
 - What you expected

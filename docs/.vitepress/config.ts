@@ -10,7 +10,7 @@ export default defineConfig({
       { text: 'Guide', link: '/getting-started' },
       { text: 'Integrations', link: '/claude' },
       { text: 'Reference', link: '/ghost-schema' },
-      { text: 'GitHub', link: 'https://github.com/poltergeist-ai/poltergeist' }
+      { text: 'GitHub', link: 'https://github.com/gkweb/poltergeist' }
     ],
 
     sidebar: [
@@ -48,7 +48,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/poltergeist-ai/poltergeist' }
+      { icon: 'github', link: 'https://github.com/gkweb/poltergeist' }
     ],
 
     footer: {

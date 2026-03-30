@@ -11,7 +11,7 @@ hero:
       link: /getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/poltergeist-ai/poltergeist
+      link: https://github.com/gkweb/poltergeist
 
 features:
   - title: Build ghost profiles

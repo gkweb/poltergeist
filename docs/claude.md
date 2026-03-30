@@ -9,7 +9,7 @@ Poltergeist ships as a [Claude Code plugin](https://docs.anthropic.com/en/docs/c
 ## Install the plugin
 
 ```bash
-claude plugin add github:poltergeist-ai/poltergeist
+claude plugin add github:gkweb/poltergeist
 ```
 
 This registers:
