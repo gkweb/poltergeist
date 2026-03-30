@@ -2,6 +2,7 @@
   "name": "poltergeist-monorepo",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.11.0",
   "version": "0.0.0",
   "scripts": {
     "build": "pnpm --filter @poltergeist-ai/cli run build",
