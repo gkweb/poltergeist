@@ -1,0 +1,15 @@
+# Data exports — never commit these
+exports/
+*.json.export
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Poltergeist cached clones
+.poltergeist/repos/
+
+# OS
+.DS_Store
+Thumbs.db
