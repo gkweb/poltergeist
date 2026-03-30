@@ -26,44 +26,49 @@ interface PatternRule {
   choice: string;
   pattern: RegExp;
   languages?: string[];
+  /**
+   * If true, this pattern is typically enforced by linters/formatters
+   * and reflects the project config rather than the contributor's opinion.
+   */
+  lintEnforceable?: boolean;
 }
 
 const JS_TS = ["typescript", "javascript"];
 const TS_ONLY = ["typescript"];
 
 const PATTERN_RULES: PatternRule[] = [
-  // Imports
-  { category: "import_style", choice: "named_import", pattern: /^import\s+\{/, languages: JS_TS },
-  { category: "import_style", choice: "default_import", pattern: /^import\s+[A-Za-z_$][^\s{]*\s+from/, languages: JS_TS },
-  { category: "import_style", choice: "path_alias", pattern: /from\s+['"][@~]\//, languages: JS_TS },
-  { category: "import_style", choice: "relative_import", pattern: /from\s+['"]\.\.?\//, languages: JS_TS },
+  // Imports — typically project-level config (path aliases, import style)
+  { category: "import_style", choice: "named_import", pattern: /^import\s+\{/, languages: JS_TS, lintEnforceable: true },
+  { category: "import_style", choice: "default_import", pattern: /^import\s+[A-Za-z_$][^\s{]*\s+from/, languages: JS_TS, lintEnforceable: true },
+  { category: "import_style", choice: "path_alias", pattern: /from\s+['"][@~]\//, languages: JS_TS, lintEnforceable: true },
+  { category: "import_style", choice: "relative_import", pattern: /from\s+['"]\.\.?\//, languages: JS_TS, lintEnforceable: true },
 
-  // Exports
-  { category: "export_style", choice: "named_export", pattern: /^export\s+(?:const|function|class|type|interface|enum)\s/, languages: JS_TS },
-  { category: "export_style", choice: "default_export", pattern: /^export\s+default\b/, languages: JS_TS },
-  { category: "export_style", choice: "re_export", pattern: /^export\s+\{[^}]*\}\s+from/, languages: JS_TS },
+  // Exports — often enforced by barrel-file lint rules
+  { category: "export_style", choice: "named_export", pattern: /^export\s+(?:const|function|class|type|interface|enum)\s/, languages: JS_TS, lintEnforceable: true },
+  { category: "export_style", choice: "default_export", pattern: /^export\s+default\b/, languages: JS_TS, lintEnforceable: true },
+  { category: "export_style", choice: "re_export", pattern: /^export\s+\{[^}]*\}\s+from/, languages: JS_TS, lintEnforceable: true },
 
-  // Functions
+  // Functions — genuine opinion, not typically lint-enforced
   { category: "function_style", choice: "arrow_function", pattern: /(?:const|let)\s+\w+\s*=\s*(?:async\s+)?\(/, languages: JS_TS },
   { category: "function_style", choice: "function_declaration", pattern: /^(?:export\s+)?(?:async\s+)?function\s+\w/, languages: JS_TS },
 
-  // Async
+  // Async — genuine architectural choice
   { category: "async_style", choice: "async_await", pattern: /\bawait\s/, languages: [...JS_TS, "python"] },
   { category: "async_style", choice: "then_chain", pattern: /\.then\s*\(/, languages: JS_TS },
 
-  // Control flow
+  // Control flow — genuine opinion about code structure
   { category: "control_flow", choice: "early_return", pattern: /^\s+if\s*\(.*\)\s*return\b/, languages: JS_TS },
   { category: "control_flow", choice: "guard_clause", pattern: /^\s+if\s*\(!/, languages: JS_TS },
 
-  // Strings
-  { category: "string_style", choice: "template_literal", pattern: /`[^`]*\$\{/, languages: JS_TS },
+  // Strings — often lint-enforced (prefer-template)
+  { category: "string_style", choice: "template_literal", pattern: /`[^`]*\$\{/, languages: JS_TS, lintEnforceable: true },
 
-  // Modern operators
+  // Modern operators — genuine preference
   { category: "modern_operators", choice: "optional_chaining", pattern: /\?\.\w/, languages: JS_TS },
   { category: "modern_operators", choice: "nullish_coalescing", pattern: /\?\?/, languages: JS_TS },
   { category: "modern_operators", choice: "destructuring", pattern: /(?:const|let|var)\s+[\[{]/, languages: JS_TS },
 
-  // TypeScript types
+  // TypeScript types — genuine opinion about modelling
   { category: "type_definition", choice: "interface", pattern: /^(?:export\s+)?interface\s+\w/, languages: TS_ONLY },
   { category: "type_definition", choice: "type_alias", pattern: /^(?:export\s+)?type\s+\w+\s*=/, languages: TS_ONLY },
   { category: "enum_vs_union", choice: "enum", pattern: /^(?:export\s+)?(?:const\s+)?enum\s+\w/, languages: TS_ONLY },
@@ -72,17 +77,17 @@ const PATTERN_RULES: PatternRule[] = [
   { category: "type_features", choice: "generic_usage", pattern: /<[A-Z]\w*(?:,\s*[A-Z]\w*)*>/, languages: TS_ONLY },
   { category: "type_features", choice: "explicit_return_type", pattern: /\)\s*:\s*(?:Promise<|void|string|number|boolean|\w+\[\])/, languages: TS_ONLY },
 
-  // Error handling
+  // Error handling — genuine architectural choice
   { category: "error_handling", choice: "try_catch", pattern: /^\s*(?:try\s*\{|\}\s*catch\s*\()/ },
   { category: "error_handling", choice: "custom_error", pattern: /class\s+\w+Error\s+extends/ },
 
-  // Testing
+  // Testing — genuine opinion about test structure
   { category: "test_structure", choice: "describe_it", pattern: /\b(?:describe|it)\s*\(/, languages: JS_TS },
   { category: "test_structure", choice: "test_fn", pattern: /\btest\s*\(/, languages: JS_TS },
   { category: "test_assertion", choice: "expect", pattern: /\bexpect\s*\(/, languages: JS_TS },
   { category: "test_assertion", choice: "assert", pattern: /\bassert\.\w/, languages: [...JS_TS, "python"] },
 
-  // Architecture
+  // Architecture — strong personal opinion territory
   { category: "composition_style", choice: "inheritance", pattern: /class\s+\w+\s+extends\s/, languages: JS_TS },
   { category: "composition_style", choice: "composition", pattern: /\buse[A-Z]\w+\s*\(/, languages: JS_TS },
   { category: "architecture", choice: "factory_function", pattern: /(?:create|make|build)[A-Z]\w+\s*\(/, languages: JS_TS },
@@ -92,7 +97,7 @@ const PATTERN_RULES: PatternRule[] = [
   { category: "python_style", choice: "type_hints", pattern: /def\s+\w+\(.*:\s*\w+/, languages: ["python"] },
   { category: "python_style", choice: "list_comprehension", pattern: /\[.*\bfor\b.*\bin\b.*\]/, languages: ["python"] },
   { category: "python_style", choice: "dataclass", pattern: /@dataclass/, languages: ["python"] },
-  { category: "python_style", choice: "f_string", pattern: /f['"].*\{/, languages: ["python"] },
+  { category: "python_style", choice: "f_string", pattern: /f['"].*\{/, languages: ["python"], lintEnforceable: true },
 ];
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -220,6 +225,21 @@ export function summariseCodeStyle(
 ): CodeStyleObservations {
   const observations: CodeStyleObservation[] = [];
 
+  // Build a lookup: category → whether all rules in it are lint-enforceable
+  const categoryLintStatus = new Map<string, boolean>();
+  for (const rule of PATTERN_RULES) {
+    const current = categoryLintStatus.get(rule.category);
+    if (current === undefined) {
+      categoryLintStatus.set(rule.category, rule.lintEnforceable === true);
+    } else {
+      // Category is lint-enforceable only if ALL rules in it are
+      categoryLintStatus.set(
+        rule.category,
+        current && rule.lintEnforceable === true,
+      );
+    }
+  }
+
   for (const [category, choices] of Object.entries(signals.counters)) {
     const entries = Object.entries(choices).sort((a, b) => b[1] - a[1]);
     const total = entries.reduce((sum, [, c]) => sum + c, 0);
@@ -227,6 +247,7 @@ export function summariseCodeStyle(
     if (total < 3) continue;
 
     const [topChoice, topCount] = entries[0];
+    const isLintEnforceable = categoryLintStatus.get(category) ?? false;
 
     if (entries.length === 1) {
       // Single-sided counter: just report frequency
@@ -235,6 +256,7 @@ export function summariseCodeStyle(
           category: CATEGORY_LABELS[category] ?? category,
           observation: `Frequently uses ${CHOICE_LABELS[topChoice] ?? topChoice} (${topCount} occurrences)`,
           confidence: topCount >= 15 ? "strong" : "moderate",
+          lintEnforceable: isLintEnforceable,
         });
       }
       continue;
@@ -253,6 +275,7 @@ export function summariseCodeStyle(
       category: CATEGORY_LABELS[category] ?? category,
       observation: `Prefers ${topLabel} over ${runnerLabel} (${pct}% of ${total})`,
       confidence,
+      lintEnforceable: isLintEnforceable,
     });
   }
 
