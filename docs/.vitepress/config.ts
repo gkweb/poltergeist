@@ -3,6 +3,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'Poltergeist',
   description: 'Code reviews from contributors who aren\'t in the room.',
+  base: '/poltergeist/',
 
   themeConfig: {
     nav: [
