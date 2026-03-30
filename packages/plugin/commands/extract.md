@@ -30,10 +30,8 @@ Ask the user for the following, then construct and run the command:
 
 ## Run the command
 
-Before running, ensure the CLI is built: `pnpm run build` from the repo root.
-
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/../cli/dist/cli.js" extract \
+npx @poltergeist-ai/cli extract \
   --contributor "<name>" \
   --git-repo <path-or-url> \
   [--email <email>] \
