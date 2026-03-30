@@ -1,3 +1,7 @@
+---
+title: Ethics and Responsible Use
+---
+
 # Ethics and Responsible Use
 
 Poltergeist simulates the review style of real contributors. Used thoughtfully, it preserves institutional knowledge and improves review coverage. Used carelessly, it can misrepresent people, create false confidence in reviews, or be used without a contributor's awareness.
@@ -21,7 +25,7 @@ If a contributor has left the organisation and you can't ask them, use judgment:
 Every poltergeist review ends with a footer that makes the simulation explicit:
 
 ```
-_Simulated review · poltergeist · ghost: ghosts/[slug].md · updated [date]_
+_Simulated review · poltergeist · ghost: .poltergeist/ghosts/[slug].md · updated [date]_
 ```
 
 Never remove this footer. Never present a poltergeist review as if it came from the contributor directly.
