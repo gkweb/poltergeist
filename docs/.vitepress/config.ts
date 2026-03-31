@@ -5,7 +5,13 @@ export default defineConfig({
   description: 'Code reviews from contributors who aren\'t in the room.',
   base: '/poltergeist/',
 
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/poltergeist/logo.svg' }]
+  ],
+
   themeConfig: {
+    logo: '/logo.svg',
+
     nav: [
       { text: 'Guide', link: '/getting-started' },
       { text: 'Integrations', link: '/claude' },
