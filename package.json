@@ -11,6 +11,7 @@
     "test": "pnpm --filter @poltergeist-ai/cli run test",
     "docs:dev": "pnpm --filter @poltergeist-ai/docs run dev",
     "docs:build": "pnpm --filter @poltergeist-ai/docs run build",
-    "docs:preview": "pnpm --filter @poltergeist-ai/docs run preview"
+    "docs:preview": "pnpm --filter @poltergeist-ai/docs run preview",
+    "release": "pnpm --filter @poltergeist-ai/cli exec npm version patch && pnpm --filter @poltergeist-ai/cli publish --access public"
   }
 }
