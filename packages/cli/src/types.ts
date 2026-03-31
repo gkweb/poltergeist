@@ -41,6 +41,31 @@ export interface ReviewSignals {
   source: "github" | "gitlab";
 }
 
+export interface ReviewTheme {
+  theme: string;
+  label: string;
+  count: number;
+  /** Proportion of comments touching this theme (0–1) */
+  ratio: number;
+  /** Verbatim snippets that matched this theme */
+  exampleSnippets: string[];
+}
+
+export interface CommentToneProfile {
+  /** Fraction of comments that include praise / positive reinforcement */
+  praiseRatio: number;
+  /** Fraction of comments that explain "why" (not just "what") */
+  explanationRatio: number;
+  /** Fraction that suggest alternatives ("consider", "what about") */
+  suggestiveRatio: number;
+  /** Fraction that are direct imperatives ("rename this", "remove this") */
+  directiveRatio: number;
+  /** Sample praise comments */
+  praiseExamples: string[];
+  /** Sample explanatory comments */
+  explanationExamples: string[];
+}
+
 export interface ReviewObservations {
   totalReviewComments?: number;
   avgCommentLength?: number;
@@ -49,6 +74,14 @@ export interface ReviewObservations {
   usesSeverityPrefixes?: Record<string, number>;
   sampleComments?: string[];
   source?: "github" | "gitlab";
+  /** Ranked themes/concerns extracted from review comments */
+  reviewThemes?: ReviewTheme[];
+  /** Tone profile derived from comment language */
+  toneProfile?: CommentToneProfile;
+  /** Recurring question patterns (deduplicated, normalised) */
+  recurringQuestions?: string[];
+  /** Phrases/vocabulary the contributor uses repeatedly */
+  recurringPhrases?: string[];
 }
 
 /** @deprecated Use ReviewSignals instead */
@@ -66,6 +99,11 @@ export interface CodeStyleObservation {
   category: string;
   observation: string;
   confidence: "strong" | "moderate";
+  /**
+   * If true, this pattern is likely enforced by project linters/formatters
+   * and reflects the project config, not the contributor's personal opinion.
+   */
+  lintEnforceable?: boolean;
 }
 
 export interface CodeStyleObservations {
