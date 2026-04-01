@@ -54,6 +54,12 @@ Follow the pattern in `packages/cli/src/extractors/`:
 4. Re-export from `packages/cli/src/index.ts`
 5. Update the README data sources table
 
+## Git & branching
+
+- **Branch naming:** All feature branches created by Claude Code sessions must follow the pattern `feature/<description>-<uuid>` (e.g. `feature/add-slack-extractor-a1b2c3`)
+- **Commit author:** All commits must be authored as `gkweb <gladekettle@gmail.com>`. Use `git commit --author="gkweb <gladekettle@gmail.com>"` for every commit.
+- **Commit messages:** Do not include any session URL or session identifier in commit messages.
+
 ## Conventions
 
 - Ghost slugs are lowercase hyphenated: `alice-smith.md`
