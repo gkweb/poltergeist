@@ -3,6 +3,7 @@ import type {
   ReviewObservations,
   ReviewTheme,
   CommentToneProfile,
+  WeightedDimension,
 } from "../types.js";
 
 // ---------------------------------------------------------------------------
@@ -351,17 +352,29 @@ function sampleMatching(
   return matches;
 }
 
-function extractThemes(comments: string[]): ReviewTheme[] {
+function extractThemes(
+  comments: string[],
+  commentSeverities?: string[],
+): ReviewTheme[] {
   if (comments.length === 0) return [];
 
   const themes: ReviewTheme[] = [];
+  const severities = commentSeverities ?? [];
 
   for (const def of THEME_DEFS) {
     const matchingComments: string[] = [];
-    for (const comment of comments) {
+    const matchingSeverities: string[] = [];
+    let totalLength = 0;
+
+    for (let i = 0; i < comments.length; i++) {
+      const comment = comments[i];
       const lower = comment.toLowerCase();
       if (def.patterns.some((p) => p.test(lower))) {
         matchingComments.push(comment);
+        totalLength += comment.length;
+        if (i < severities.length) {
+          matchingSeverities.push(severities[i]);
+        }
       }
     }
 
@@ -376,18 +389,128 @@ function extractThemes(comments: string[]): ReviewTheme[] {
       .slice(0, 3)
       .map((c) => (c.length > 150 ? c.slice(0, 150) + "..." : c));
 
+    // Build severity breakdown for this theme
+    const severityBreakdown: Record<string, number> = {};
+    for (const sev of matchingSeverities) {
+      severityBreakdown[sev] = (severityBreakdown[sev] ?? 0) + 1;
+    }
+
     themes.push({
       theme: def.theme,
       label: def.label,
       count: matchingComments.length,
       ratio,
       exampleSnippets: snippets,
+      severityBreakdown:
+        matchingSeverities.length > 0 ? severityBreakdown : undefined,
+      avgCommentLength: Math.round(totalLength / matchingComments.length),
     });
   }
 
   // Sort by count descending — this becomes their ranked priority
   themes.sort((a, b) => b.count - a.count);
   return themes;
+}
+
+// ---------------------------------------------------------------------------
+// Weighted dimension computation
+// ---------------------------------------------------------------------------
+
+const HIGH_SEVERITY = new Set(["blocking", "major"]);
+const MED_SEVERITY = new Set(["suggestion", "question", "thought"]);
+const LOW_SEVERITY = new Set(["nit", "minor"]);
+
+function dominantSeverity(
+  breakdown: Record<string, number> | undefined,
+): "blocking" | "suggestion" | "nit" | "unknown" {
+  if (!breakdown) return "unknown";
+  let bestCategory: "blocking" | "suggestion" | "nit" | "unknown" = "unknown";
+  let bestCount = 0;
+
+  let highCount = 0;
+  let medCount = 0;
+  let lowCount = 0;
+
+  for (const [sev, count] of Object.entries(breakdown)) {
+    if (HIGH_SEVERITY.has(sev)) highCount += count;
+    else if (MED_SEVERITY.has(sev)) medCount += count;
+    else if (LOW_SEVERITY.has(sev)) lowCount += count;
+  }
+
+  if (highCount > bestCount) {
+    bestCategory = "blocking";
+    bestCount = highCount;
+  }
+  if (medCount > bestCount) {
+    bestCategory = "suggestion";
+    bestCount = medCount;
+  }
+  if (lowCount > bestCount) {
+    bestCategory = "nit";
+    bestCount = lowCount;
+  }
+
+  return bestCategory;
+}
+
+function computeWeightedDimensions(
+  themes: ReviewTheme[],
+): WeightedDimension[] {
+  if (themes.length === 0) return [];
+
+  // Find max values for normalization
+  const maxRatio = Math.max(...themes.map((t) => t.ratio));
+  const maxAvgLen = Math.max(
+    ...themes.map((t) => t.avgCommentLength ?? 0),
+    1,
+  );
+
+  return themes.map((theme) => {
+    // Frequency score: how often they comment on this theme (0–1)
+    const frequencyScore = maxRatio > 0 ? theme.ratio / maxRatio : 0;
+
+    // Severity score: proportion of high-severity comments in this theme (0–1)
+    let severityScore = 0.5; // default when no severity data
+    if (theme.severityBreakdown) {
+      const total = Object.values(theme.severityBreakdown).reduce(
+        (a, b) => a + b,
+        0,
+      );
+      if (total > 0) {
+        let highCount = 0;
+        for (const [sev, count] of Object.entries(theme.severityBreakdown)) {
+          if (HIGH_SEVERITY.has(sev)) highCount += count;
+        }
+        severityScore = highCount / total;
+      }
+    }
+
+    // Specificity score: longer comments = more specific concern (0–1)
+    const avgLen = theme.avgCommentLength ?? 0;
+    const specificityScore = maxAvgLen > 0 ? avgLen / maxAvgLen : 0;
+
+    // Composite weight
+    const rawWeight =
+      frequencyScore * 0.5 + severityScore * 0.3 + specificityScore * 0.2;
+
+    // Normalize to 0.0–1.0 with two decimal places
+    const weight = Math.round(Math.min(1, Math.max(0, rawWeight)) * 100) / 100;
+
+    // Confidence based on sample size
+    let confidence: "high" | "moderate" | "low";
+    if (theme.count >= 20) confidence = "high";
+    else if (theme.count >= 10) confidence = "moderate";
+    else confidence = "low";
+
+    return {
+      dimension: theme.theme,
+      label: theme.label,
+      weight,
+      confidence,
+      commentCount: theme.count,
+      defaultSeverity: dominantSeverity(theme.severityBreakdown),
+    };
+  });
 }
 
 function buildToneProfile(comments: string[]): CommentToneProfile | undefined {
@@ -450,10 +573,15 @@ export function summariseReview(signals: ReviewSignals): ReviewObservations {
   ];
 
   // --- New inference: themes, tone, recurring patterns ---
-  obs.reviewThemes = extractThemes(comments);
+  obs.reviewThemes = extractThemes(comments, signals.commentSeverities);
   obs.toneProfile = buildToneProfile(comments);
   obs.recurringQuestions = extractRecurringQuestions(comments);
   obs.recurringPhrases = extractRecurringPhrases(comments);
+
+  // --- Weighted dimensions ---
+  if (obs.reviewThemes.length > 0) {
+    obs.weightedDimensions = computeWeightedDimensions(obs.reviewThemes);
+  }
 
   return obs;
 }

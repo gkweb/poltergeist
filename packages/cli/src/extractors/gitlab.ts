@@ -12,6 +12,7 @@ export function extractGitLabSignals(
     reviewComments: [],
     commentLengths: [],
     severityPrefixes: {},
+    commentSeverities: [],
     questionComments: 0,
     totalComments: 0,
     source: "gitlab",
@@ -57,7 +58,11 @@ export function extractGitLabSignals(
 
     const prefixMatch = body.match(prefixRe);
     if (prefixMatch) {
-      increment(signals.severityPrefixes, prefixMatch[1].toLowerCase());
+      const severity = prefixMatch[1].toLowerCase();
+      increment(signals.severityPrefixes, severity);
+      signals.commentSeverities!.push(severity);
+    } else {
+      signals.commentSeverities!.push("none");
     }
 
     if (

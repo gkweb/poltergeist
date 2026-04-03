@@ -133,4 +133,114 @@ describe("summariseReview", () => {
     const obs = summariseReview(makeSignals({ source: "gitlab" }));
     expect(obs.source).toBe("gitlab");
   });
+
+  it("computes weighted dimensions from themed comments with severity data", () => {
+    const comments = [
+      "blocking: This function does too much — extract the validation into its own helper",
+      "blocking: Break this up, it's doing multiple things",
+      "suggestion: Consider splitting this into smaller pieces",
+      "nit: rename this to something more descriptive",
+      "nit: the naming here is confusing — userThing doesn't say much",
+      "nit: more descriptive name please",
+      "blocking: No error handling on this API call. What if it 500s?",
+      "blocking: Missing catch here — what happens when this fails?",
+      "suggestion: What if this throws? Should we handle that edge case?",
+      "suggestion: Consider adding a try/catch around this",
+      "This is clean.",
+      "Nice use of the composable pattern.",
+      "suggestion: Should we add a test for this failure case?",
+      "blocking: No tests for this critical path",
+      "suggestion: Add test coverage for the error branch",
+    ];
+    const commentSeverities = [
+      "blocking", "blocking", "suggestion",
+      "nit", "nit", "nit",
+      "blocking", "blocking", "suggestion", "suggestion",
+      "none", "none",
+      "suggestion", "blocking", "suggestion",
+    ];
+
+    const obs = summariseReview(
+      makeSignals({
+        reviewComments: comments,
+        commentLengths: comments.map((c) => c.length),
+        totalComments: comments.length,
+        severityPrefixes: { blocking: 5, suggestion: 4, nit: 3 },
+        commentSeverities,
+      }),
+    );
+
+    expect(obs.weightedDimensions).toBeDefined();
+    expect(obs.weightedDimensions!.length).toBeGreaterThan(0);
+
+    // Check that each weighted dimension has the required fields
+    for (const dim of obs.weightedDimensions!) {
+      expect(dim.weight).toBeGreaterThanOrEqual(0);
+      expect(dim.weight).toBeLessThanOrEqual(1);
+      expect(["high", "moderate", "low"]).toContain(dim.confidence);
+      expect(["blocking", "suggestion", "nit", "unknown"]).toContain(dim.defaultSeverity);
+      expect(dim.commentCount).toBeGreaterThanOrEqual(2);
+    }
+
+    // Decomposition should be detected (extract, break up, split)
+    const decomp = obs.weightedDimensions!.find((d) => d.dimension === "decomposition");
+    expect(decomp).toBeDefined();
+
+    // Naming should be detected
+    const naming = obs.weightedDimensions!.find((d) => d.dimension === "naming");
+    expect(naming).toBeDefined();
+
+    // Error handling should be detected
+    const errorHandling = obs.weightedDimensions!.find((d) => d.dimension === "error_handling");
+    expect(errorHandling).toBeDefined();
+
+    // Error handling should have blocking as default severity (most of its comments are blocking)
+    expect(errorHandling!.defaultSeverity).toBe("blocking");
+
+    // Naming should have nit as default severity
+    expect(naming!.defaultSeverity).toBe("nit");
+  });
+
+  it("returns empty weighted dimensions when no themes are found", () => {
+    const comments = [
+      "looks good to me",
+      "lgtm",
+      "ship it",
+      "approved",
+      "nice work",
+    ];
+    const obs = summariseReview(
+      makeSignals({
+        reviewComments: comments,
+        commentLengths: comments.map((c) => c.length),
+        totalComments: comments.length,
+      }),
+    );
+    // No themes should be detected from generic approval comments
+    expect(obs.weightedDimensions ?? []).toEqual([]);
+  });
+
+  it("includes severity breakdown in review themes", () => {
+    const comments = [
+      "blocking: extract this into its own function",
+      "suggestion: split this component up",
+      "nit: this could be broken into smaller pieces",
+    ];
+    const commentSeverities = ["blocking", "suggestion", "nit"];
+
+    const obs = summariseReview(
+      makeSignals({
+        reviewComments: comments,
+        commentLengths: comments.map((c) => c.length),
+        totalComments: comments.length,
+        commentSeverities,
+      }),
+    );
+
+    const decomp = obs.reviewThemes?.find((t) => t.theme === "decomposition");
+    if (decomp) {
+      expect(decomp.severityBreakdown).toBeDefined();
+      expect(decomp.avgCommentLength).toBeGreaterThan(0);
+    }
+  });
 });

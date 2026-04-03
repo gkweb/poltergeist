@@ -36,6 +36,8 @@ export interface ReviewSignals {
   reviewComments: string[];
   commentLengths: number[];
   severityPrefixes: Record<string, number>;
+  /** Per-comment severity prefix (parallel array to reviewComments) */
+  commentSeverities?: string[];
   questionComments: number;
   totalComments: number;
   source: "github" | "gitlab";
@@ -49,6 +51,10 @@ export interface ReviewTheme {
   ratio: number;
   /** Verbatim snippets that matched this theme */
   exampleSnippets: string[];
+  /** Breakdown of severity prefixes for comments matching this theme */
+  severityBreakdown?: Record<string, number>;
+  /** Average character length of comments matching this theme */
+  avgCommentLength?: number;
 }
 
 export interface CommentToneProfile {
@@ -64,6 +70,32 @@ export interface CommentToneProfile {
   praiseExamples: string[];
   /** Sample explanatory comments */
   explanationExamples: string[];
+}
+
+export interface WeightedDimension {
+  dimension: string;
+  label: string;
+  /** Composite weight (0.0–1.0) derived from frequency, severity, and specificity */
+  weight: number;
+  confidence: "high" | "moderate" | "low";
+  commentCount: number;
+  /** Most common severity when this theme appears */
+  defaultSeverity: "blocking" | "suggestion" | "nit" | "unknown";
+}
+
+export interface TradeoffPreference {
+  tension: string;
+  preference: "prefer-first" | "prefer-second" | "balanced";
+  evidence?: string;
+}
+
+export interface ScarSignal {
+  pattern: string;
+  description: string;
+  /** Severity amplification factor (1.0–2.0) */
+  multiplier: number;
+  /** Dimension names this scar amplifies */
+  amplifies: string[];
 }
 
 export interface ReviewObservations {
@@ -82,6 +114,8 @@ export interface ReviewObservations {
   recurringQuestions?: string[];
   /** Phrases/vocabulary the contributor uses repeatedly */
   recurringPhrases?: string[];
+  /** Weighted dimensions computed from frequency, severity, and specificity */
+  weightedDimensions?: WeightedDimension[];
 }
 
 /** @deprecated Use ReviewSignals instead */

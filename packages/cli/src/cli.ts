@@ -11,6 +11,7 @@ import { extractSlackSignals, summariseSlack } from "./extractors/slack.js";
 import { extractDocsSignals } from "./extractors/docs.js";
 import { buildGhostMarkdown } from "./generator.js";
 import { slugify } from "./utils.js";
+import { runSetup } from "./setup.js";
 import type {
   GitObservations,
   CodeStyleObservations,
@@ -37,11 +38,13 @@ function ensureReposGitignored(): void {
 }
 
 function printUsage(): void {
-  console.log(`Usage: poltergeist [extract] [options]
+  console.log(`Usage: poltergeist <command> [options]
 
-Build a contributor ghost profile from data sources.
+Commands:
+  extract    Build a contributor ghost profile from data sources
+  setup      Install poltergeist skills for your AI coding tool
 
-Options:
+Extract options:
   --contributor <name>    Contributor name (required; use GitHub username for best results)
   --email <email>         Contributor email (for git log filtering)
   --slug <slug>           Output slug (default: derived from name)
@@ -52,6 +55,11 @@ Options:
   --github-token <token>  GitHub personal access token (for higher API rate limits)
   --output <path>         Output path (default: .poltergeist/ghosts/<slug>.md)
   --verbose               Enable verbose logging
+
+Setup options:
+  --tool <id>             Tool to install for (claude-code,codex,cursor,windsurf,cline)
+                          Comma-separated for multiple. Omit to choose interactively.
+
   --help                  Show this help message`);
 }
 
@@ -115,6 +123,17 @@ async function run(): Promise<number> {
     return 0;
   }
 
+  if (rawArgs[0] === "setup") {
+    const setupArgs = rawArgs.slice(1);
+    let toolFlag: string | undefined;
+    for (let i = 0; i < setupArgs.length; i++) {
+      if (setupArgs[i] === "--tool" && setupArgs[i + 1]) {
+        toolFlag = setupArgs[i + 1];
+      }
+    }
+    return runSetup(toolFlag);
+  }
+
   const args = rawArgs[0] === "extract" ? rawArgs.slice(1) : rawArgs;
 
   const { values } = parseArgs({
@@ -151,7 +170,9 @@ async function run(): Promise<number> {
   const slug = values.slug ?? slugify(contributor);
   const outputPath = values.output ?? `${GHOSTS_DIR}/${slug}.md`;
   const verbose = values.verbose ?? false;
-  const githubToken = values["github-token"];
+  const githubToken = values["github-token"]
+    ?? process.env.GITHUB_PERSONAL_ACCESS_TOKEN
+    ?? process.env.GITHUB_TOKEN;
   const sourcesUsed: string[] = [];
 
   let gitObs: GitObservations = {};

@@ -201,4 +201,50 @@ describe("buildGhostMarkdown", () => {
     expect(md).toContain('"Why did you choose this approach?"');
     expect(md).toContain('"Should we add a test for this?"');
   });
+
+  it("generates weighted heuristics table when dimensions are available", () => {
+    const md = buildGhostMarkdown(
+      makeInput({
+        reviewObs: {
+          totalReviewComments: 50,
+          weightedDimensions: [
+            {
+              dimension: "error_handling",
+              label: "Error handling / edge cases",
+              weight: 0.92,
+              confidence: "high",
+              commentCount: 25,
+              defaultSeverity: "blocking",
+            },
+            {
+              dimension: "naming",
+              label: "Naming clarity",
+              weight: 0.65,
+              confidence: "moderate",
+              commentCount: 12,
+              defaultSeverity: "nit",
+            },
+          ],
+          reviewThemes: [
+            { theme: "error_handling", label: "Error handling / edge cases", count: 25, ratio: 0.5, exampleSnippets: ["What if this fails?"] },
+            { theme: "naming", label: "Naming clarity", count: 12, ratio: 0.24, exampleSnippets: ["Rename this"] },
+          ],
+        },
+      }),
+    );
+
+    expect(md).toContain("## Review Heuristics");
+    expect(md).toContain("| Dimension | Weight | Confidence | Default Severity |");
+    expect(md).toContain("| Error handling / edge cases | 0.92 | high (25 comments) | blocking |");
+    expect(md).toContain("| Naming clarity | 0.65 | moderate (12 comments) | nit |");
+    expect(md).toContain("### Tradeoff Preferences");
+    expect(md).toContain("### Scars");
+  });
+
+  it("omits heuristics table when no weighted dimensions exist", () => {
+    const md = buildGhostMarkdown(makeInput());
+    expect(md).not.toContain("## Review Heuristics");
+    expect(md).toContain("### Tradeoff Preferences");
+    expect(md).toContain("### Scars");
+  });
 });
