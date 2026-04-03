@@ -17,6 +17,18 @@ npm install -g @poltergeist-ai/cli
 poltergeist extract [options]
 ```
 
+### Set up skills for your AI coding tool
+
+```bash
+npx @poltergeist-ai/cli setup
+```
+
+This installs the poltergeist review and extract skills for Claude Code, Codex, Cursor, Windsurf, or Cline. You can also pass `--tool` to skip the interactive prompt:
+
+```bash
+npx @poltergeist-ai/cli setup --tool claude-code,cursor
+```
+
 Requires Node.js >= 18.17.0.
 
 ## Usage
@@ -70,12 +82,18 @@ npx @poltergeist-ai/cli extract \
   --github-token ghp_xxxxxxxxxxxx
 ```
 
+The CLI also reads `GITHUB_TOKEN` or `GITHUB_PERSONAL_ACCESS_TOKEN` from the environment, so you can skip the flag if either is set.
+
 ## CLI reference
 
 ```
-Usage: poltergeist [extract] [options]
+Usage: poltergeist <command> [options]
 
-Options:
+Commands:
+  extract    Build a contributor ghost profile from data sources
+  setup      Install poltergeist skills for your AI coding tool
+
+Extract options:
   --contributor <name>    Contributor name (required)
   --email <email>         Contributor email for git log filtering
   --slug <slug>           Output filename slug (default: derived from name)
@@ -86,6 +104,11 @@ Options:
   --github-token <token>  GitHub PAT for higher API rate limits
   --output <path>         Output path (default: .poltergeist/ghosts/<slug>.md)
   --verbose               Enable verbose logging
+
+Setup options:
+  --tool <id>             Tool to install for (claude-code,codex,cursor,windsurf,cline)
+                          Comma-separated for multiple. Omit to choose interactively.
+
   --help                  Show help
 ```
 
@@ -124,14 +147,15 @@ Use a Slack admin export (or workspace export) and point `--slack-export` at the
 
 The CLI generates a ghost file in Markdown with these sections:
 
-- **Identity** — name, slug, role, primary domains, sources used
+- **Identity** — name, slug, version, status, role, primary domains, sources used, generator version
+- **Review Heuristics** — weighted dimensions table with confidence levels and default severities, tradeoff preferences, scars
 - **Review philosophy** — ranked values, dealbreakers, what they ignore
 - **Communication style** — tone, severity prefixes, vocabulary, comment length
 - **Code patterns** — patterns they prefer, push back on, and commonly suggest
 - **Known blind spots** — areas they historically under-review
 - **Example review comments** — verbatim excerpts for voice grounding
 
-Sections marked `[fill in manually]` need human input. The manual pass is the most important step — especially ranked values and example comments.
+The Review Heuristics table is auto-generated from review comment analysis — it drives priority and comment distribution during simulated reviews. Sections marked `[fill in manually]` need human input. The manual pass is the most important step — especially ranked values, tradeoff preferences, and example comments.
 
 ### After extraction
 

@@ -34,7 +34,10 @@ export default defineConfig({
         text: 'Integrations',
         items: [
           { text: 'Claude Code', link: '/claude' },
-          { text: 'Codex', link: '/codex' }
+          { text: 'Codex / OpenCode', link: '/codex' },
+          { text: 'Cursor', link: '/cursor' },
+          { text: 'Windsurf', link: '/windsurf' },
+          { text: 'Cline', link: '/cline' }
         ]
       },
       {

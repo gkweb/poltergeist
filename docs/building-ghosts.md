@@ -33,7 +33,7 @@ Plus **at least one** data source:
 |---|---|
 | `--email <email>` | For git log filtering when name differs from git author |
 | `--slug <slug>` | Output slug (default: derived from name, e.g. `alice-smith`) |
-| `--github-token <token>` | GitHub API token for higher rate limits (5000 vs 60 req/hr) |
+| `--github-token <token>` | GitHub API token for higher rate limits (5000 vs 60 req/hr). Also reads `GITHUB_TOKEN` or `GITHUB_PERSONAL_ACCESS_TOKEN` from env. |
 | `--output <path>` | Output file (default: `.poltergeist/ghosts/<slug>.md`) |
 | `--verbose` | Show detailed extraction progress |
 
@@ -57,13 +57,17 @@ Claude walks you through each option, constructs the CLI command, runs it, then 
 
 ## The manual validation pass
 
-The extractor generates a draft — not a finished ghost. Sections it can auto-populate from data (commit style, code patterns, sample comments) are filled in. Sections that require human judgment are marked with `[fill in manually]` placeholders:
+The extractor generates a draft — not a finished ghost. Sections it can auto-populate from data (commit style, code patterns, sample comments, weighted heuristics) are filled in. Sections that require human judgment are marked with `[fill in manually]` placeholders:
 
 ```markdown
-### Tone
-[fill in manually]
+### Tradeoff Preferences
+- abstraction vs duplication: _[prefer-abstraction | prefer-duplication | balanced]_
+- readability vs performance: _[prefer-readability | prefer-performance | balanced]_
 
-### Patterns they push back on
+### Scars
+_[Fill in manually]_
+
+### Tone
 [fill in manually]
 
 ### Known Blind Spots
@@ -90,19 +94,25 @@ over directives. Never sarcastic.
 
 ### What to check
 
-1. **Ranked values** — The `What they care about most (ranked)` section directly controls review priorities. Reorder based on what you've seen them actually flag.
+1. **Review Heuristics table** — The weighted dimensions drive priority and comment distribution. Verify weights match the contributor's actual priorities and re-order rows if needed.
 
-2. **Example comments** — Aim for 5-10 verbatim quotes from their real reviews. These are the primary voice-fidelity mechanism. Include a range: blocking, suggestions, nits, and positive feedback.
+2. **Tradeoff Preferences** — Fill in how the contributor resolves common engineering tensions (abstraction vs duplication, readability vs performance, etc.).
 
-3. **Tone description** — Be specific. "Direct but constructive, doesn't over-explain" is useful. "Professional and helpful" is not.
+3. **Scars** — Add historical incidents that make them unusually sensitive to certain patterns. Include the multiplier and which dimensions it amplifies.
 
-4. **Dealbreakers** — What always gets a `blocking:` comment? Only list things they actually block on.
+4. **Example comments** — Aim for 5-10 verbatim quotes from their real reviews. These are the primary voice-fidelity mechanism. Include a range: blocking, suggestions, nits, and positive feedback.
 
-5. **Blind spots** — Every contributor has them. Be honest. These show up as "Out of scope for this ghost" in every review.
+5. **Tone description** — Be specific. "Direct but constructive, doesn't over-explain" is useful. "Professional and helpful" is not.
+
+6. **Dealbreakers** — What always gets a `blocking:` comment? Only list things they actually block on.
+
+7. **Blind spots** — Every contributor has them. Be honest. These show up as "Out of scope for this ghost" in every review.
 
 ### Validation checklist
 
-- [ ] Ranked values reflect actual review priorities
+- [ ] Review Heuristics weights match actual review priorities
+- [ ] Tradeoff Preferences filled in
+- [ ] Scars documented (if any)
 - [ ] 5-10 verbatim example comments included
 - [ ] Tone description is specific, not vague
 - [ ] Dealbreakers are real, not aspirational

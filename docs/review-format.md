@@ -12,7 +12,7 @@ How poltergeist structures and writes a simulated review.
 
 2. **Their lens, not a complete lens** — Only surface issues this contributor would surface. A review "as Alice" is not a comprehensive audit. It's Alice's perspective.
 
-3. **Ordered by their priorities** — Surface issues in the order their ghost ranks them. Correctness before naming. Naming before nits.
+3. **Ordered by their priorities** — Surface issues in the order their ghost's Review Heuristics table ranks them. Higher-weighted dimensions first. Fall back to the ranked list if no heuristics table is present.
 
 4. **Match their density** — If they're terse, produce five comments. If they're thorough, produce fifteen. Don't inflate.
 

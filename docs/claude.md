@@ -19,6 +19,16 @@ This registers:
 
 > **Note:** We plan to submit poltergeist to the official Claude Code plugin marketplace once it's stable. After that, installation will be a single `claude plugin install poltergeist` command.
 
+### Alternative: install via CLI setup
+
+If you prefer not to use the plugin, you can install poltergeist skills directly:
+
+```bash
+npx @poltergeist-ai/cli setup --tool claude-code
+```
+
+This writes the review and extract skills to `.claude/skills/` in your project. Works the same way — the plugin is just more convenient for updates.
+
 ## Happy path: end to end
 
 ### 1. Build a ghost

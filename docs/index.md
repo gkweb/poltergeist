@@ -19,7 +19,7 @@ features:
   - title: Invoke reviews in their voice
     details: Pipe a diff and get a review that sounds like them — their priorities, their tone, their severity prefixes, their blind spots acknowledged.
   - title: Tool-agnostic
-    details: Ghost files are plain markdown. The CLI builds them independently. Works with Claude Code today, Codex and other AI agents tomorrow — your ghosts are portable.
+    details: Ghost files are plain markdown. The CLI builds them independently. Install skills for Claude Code, Codex, Cursor, Windsurf, or Cline with a single setup command — your ghosts are portable.
 ---
 
 ## How it works
@@ -30,9 +30,10 @@ features:
 ```
 
 1. **Run the extractor** against a contributor's git history, review comments, Slack export, and docs
-2. **A ghost file is generated** — a structured profile of their values, heuristics, and voice
-3. **Manually validate** the ghost with teammates who know the contributor
-4. **Invoke reviews** through your AI coding tool of choice
+2. **A ghost file is generated** — a structured profile with weighted heuristics, tradeoff preferences, voice signals, and example comments
+3. **Install skills** for your AI tool: `npx @poltergeist-ai/cli setup`
+4. **Manually validate** the ghost with teammates who know the contributor
+5. **Invoke reviews** through your AI coding tool of choice
 
 ```bash
 git diff main | claude "review this as @alice-smith"

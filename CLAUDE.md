@@ -6,8 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Poltergeist is a tool for simulating pull request reviews from specific contributors using their voice, values, and heuristics. It has two parts, organized as a pnpm monorepo:
 
-1. **`packages/cli`** (`@poltergeist-ai/cli`) — TypeScript CLI that extracts contributor signals from git history, GitHub/GitLab reviews, Slack, and docs into ghost profile files. Published to npm.
+1. **`packages/cli`** (`@poltergeist-ai/cli`) — TypeScript CLI that extracts contributor signals from git history, GitHub/GitLab reviews, Slack, and docs into ghost profile files. Also includes `setup` command that installs skills for AI coding tools. Published to npm.
 2. **`packages/plugin`** — Claude Code plugin providing two skills: `poltergeist` (review-as-ghost) and `extract` (build a ghost profile). Installed from GitHub, not published to npm.
+3. **`packages/llm-rules`** (`@poltergeist-ai/llm-rules`) — Library for programmatic rule/skill installation across AI coding tools (Claude Code, Codex, Cursor, Windsurf, Cline). Used by the CLI's `setup` command. Published to npm.
 
 ## Key commands
 
@@ -30,6 +31,10 @@ npx @poltergeist-ai/cli extract \
   --slack-export /path/to/slack/ \
   --docs-dir /path/to/docs/ \
   --output .poltergeist/ghosts/<slug>.md
+
+# Install skills for your AI coding tool
+npx @poltergeist-ai/cli setup
+npx @poltergeist-ai/cli setup --tool claude-code,cursor
 
 # Invoke a review
 git diff main | claude "review this as @<slug>"
@@ -57,7 +62,7 @@ Follow the pattern in `packages/cli/src/extractors/`:
 ## Conventions
 
 - Ghost slugs are lowercase hyphenated: `alice-smith.md`
-- TypeScript: zero runtime dependencies, Node.js stdlib only
+- TypeScript: zero runtime dependencies in cli and llm-rules packages, Node.js stdlib only
 - Package manager: pnpm (workspace monorepo)
 - Ghost files must follow the format in `packages/plugin/ghosts/example-ghost.md`
 - Every review output must include the simulation footer and "Out of scope for this ghost" section

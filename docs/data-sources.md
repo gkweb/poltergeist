@@ -46,7 +46,7 @@ The CLI searches for PRs where the contributor left review comments and extracts
 - Without token: 60 requests/hour (search limited to 30)
 - With `--github-token`: 5000 requests/hour
 
-Pass `--github-token` for repos with extensive PR history.
+Pass `--github-token` for repos with extensive PR history. The CLI also reads `GITHUB_TOKEN` or `GITHUB_PERSONAL_ACCESS_TOKEN` from the environment, so you can skip the flag if either is set.
 
 ### GitLab MR comments
 
