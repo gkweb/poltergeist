@@ -1,6 +1,6 @@
 {
   "name": "@poltergeist-ai/cli",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Build contributor ghost profiles from git, GitLab, Slack, and docs for simulated code reviews",
   "license": "MIT",
   "type": "module",
